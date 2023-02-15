@@ -1,4 +1,4 @@
-# PyRoll Sims Power and Labour
+# PyRolL Sims Power and Labour
 
 Plugin for PyRoll providing Power and Labour calculations from O. Lippmann and H. Mahrenholz.
 

@@ -9,21 +9,19 @@
 % Document
 \begin{document}
 
-    \title{The Lippmann - Mahrenholz Power and Labour PyRoll Plugin}
+    \title{The Lippmann - Mahrenholz Power and Labour PyRolL Plugin}
     \author{Christoph Renzing}
     \date{\today}
 
     \maketitle
 
     This plugin provides the roll force and roll torque model developed by \textcite{Lippmann_Mahrenholtz_1967}.
-    Tge method was inspired by the solution of \textcite{Sims1954}.
-    The basic equations are derived from classic strip theory with suitable simplifications suitable for hot rolling.
+    The basic equations are derived from classic strip theory with simplifications suitable for hot rolling.
     For the presented plugin, the specific roll torque at the upper work roll is calculated.
-    Usage of the equations for groove rolling is only valid, when using a equivalent rectangle approach.
-    Heights used for calculation are therefore equivalent values for a equivalent flat pass.
+    Usage of the equations for groove rolling is only valid, when using an equivalent rectangle approach.
     Furthermore, the used variable $h$ is the height of the equivalent flat workpiece and $b_m$ it's mean width,
-    $k_{f,m}$ represents the mean flow stress of the material and $\epsilon$ the reduction of the equivalent pass in height direction.
-    The indices 0 and 1 denote the incoming and exiting profile and $L_d$ is the contact length of the pass.
+    $k_{f,m}$ represents the mean flow stress of the material and $\epsilon$ the relative drought of the pass.
+    The indices 0 and 1 denote the incoming and exiting states and $L_d$ is the contact length of the pass.
 
 
     \section{Model approach}\label{sec:model-approach}
@@ -42,13 +40,13 @@
     \begin{subequations}
         \begin{equation}
             \begin{multlined}
-                Q_{F} = \frac{\sigma_R}{k_{f,m}} + 2 \sqrt{\frac{1 - \epsilon}{\epsilon}} \arctan\left( \sqrt{\frac{\epsilon}{1 - \epsilon}} \right) - 1 +
-                \sqrt{\frac{R}{h_1}} \sqrt{\frac{1 - \epsilon}{\epsilon}}  \log\left( \frac{\sqrt{1 - \epsilon}}{1 - \epsilon (1 - \beta_n ^2)} \right) \\
+                Q_{F} = \frac{\sigma_R}{k_{f,m}} + 2 \sqrt{\frac{1 - \abs{\epsilon}}{\abs{\epsilon}}} \arctan\left( \sqrt{\frac{\abs{\epsilon}}{1 - \abs{\epsilon}}} \right) - 1 +
+                \sqrt{\frac{R}{h_1}} \sqrt{\frac{1 - \abs{\epsilon}}{\abs{\epsilon}}}  \log\left( \frac{\sqrt{1 - \abs{\epsilon}}}{1 - \abs{\epsilon} (1 - \beta_n ^2)} \right) \\
             \end{multlined}
             \label{eq:inverse-forming-efficiency}
         \end{equation}
         \begin{equation}
-            \beta_n = \sqrt{\frac{1 - \epsilon}{\epsilon}} \tan \left(  \frac{1}{2} \sqrt{\frac{h_1}{R}} \left[ \frac{\sigma_R - \sigma_V}{k_{f,m}} + \log (1 - \epsilon) \right] + \frac{1}{2} \arctan \sqrt{\frac{\epsilon}{1 - \epsilon}}\right)
+            \beta_n = \sqrt{\frac{1 - \abs{\epsilon}}{\abs{\epsilon}}} \tan \left(  \frac{1}{2} \sqrt{\frac{h_1}{R}} \left[ \frac{\sigma_R - \sigma_V}{k_{f,m}} + \log (1 - \abs{\epsilon}) \right] + \frac{1}{2} \arctan \sqrt{\frac{\abs{\epsilon}}{1 - \abs{\epsilon}}}\right)
             \label{eq:neutral-line-angle}
         \end{equation}
         \begin{equation}
@@ -64,7 +62,7 @@
             \label{eq:lippmann-mahrenholz-torque}
         \end{equation}
         \begin{equation}
-            Q_M = \sqrt{\frac{R}{h_1}}\sqrt{\frac{1 - \epsilon}{\epsilon}}\left( \frac{1}{2} - beta_n \right)
+            Q_M = \sqrt{\frac{R}{h_1}}\sqrt{\frac{1 - \abs{\epsilon}}{\abs{\epsilon}}}\left( \frac{1}{2} - \beta_n \right)
             \label{eq:lippmann-mahrenholz-torque-efficiency}
         \end{equation}
     \end{subequations}
@@ -75,24 +73,9 @@
     The plugin can be loaded under the name \texttt{pyroll\_lippmann\_mahrenholz\_\_power\_and\_labour}.
 
     An implementation of the \lstinline{roll_force} and \lstinline{roll_torque} hook on \lstinline{RollPass} and \lstinline{RollPass.Roll} is provided,
-    calculating the roll force and torque using~\eqref{eq:lippmann-mahrenholz-torque} and~\eqref{eq:lippmann-mahrenholz-force}.
-    Several additional hooks on \lstinline{RollPass} are defined, which are used in power and labour calculations, as listed in \autoref{tab:hookspecs}.
-    Base implementations of them are provided, so it should work out of the box.
-    Provide your own hook implementations or set attributes on the \lstinline{RollPass} instances to alter the spreading behavior.
-
-    \begin{table}
-        \centering
-        \caption{Hooks specified by this plugin.}
-        \label{tab:hookspecs}
-        \begin{tabular}{ll}
-            \toprule
-            Hook name                                             & Meaning                                               \\
-            \midrule
-            \texttt{equivalent\_reduction}                        & Reduction $\epsilon$                                  \\
-            \texttt{neutral\_line\_angle}             & Angle of neutral line $\alpha_n$                      \\
-            \bottomrule
-        \end{tabular}
-    \end{table}
+    calculating the roll force and torque using~\eqref{eq:lippmann-mahrenholz-force} and~\eqref{eq:lippmann-mahrenholz-torque}.
+    Values for the \lstinline{mean_front_tension} as well as \lstinline{mean_back_tension} have to be provided by the user for the \lstinline{RollPass}.
+    For the hook \lstinline{mean_neutral_line_angle} on \lstinline{RollPass} \autoref{eq:neutral-line-angle} is implemented.
 
     \printbibliography
 
