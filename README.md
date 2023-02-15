@@ -1,6 +1,6 @@
-# PyRolL Sims Power and Labour
+# PyRolL Lippmann - Mahrenholz Power and Labour
 
-Plugin for PyRoll providing Power and Labour calculations from O. Lippmann and H. Mahrenholz.
+Plugin for PyRolL providing Power and Labour calculations from O. Lippmann and H. Mahrenholz.
 
 For the docs, see [here](docs/docs.pdf).
 
