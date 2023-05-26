@@ -2,7 +2,7 @@ import logging
 import numpy as np
 from pyroll.core import RollPass, Hook, root_hooks
 
-VERSION = "2.0.0"
+VERSION = "2.0"
 
 log = logging.getLogger(__name__)
 
@@ -11,9 +11,6 @@ RollPass.inverse_forming_efficiency = Hook[float]()
 
 RollPass.roll_torque_loss_function = Hook[float]()
 """Loss function defined by Lippmann and Mahrenholz for the roll torque for the roll pass."""
-
-RollPass.Roll.neutral_angle = Hook[float]()
-"""Angle of the neutral point of the roll surface."""
 
 
 @RollPass.front_tension
@@ -28,7 +25,7 @@ def back_tension(self: RollPass):
         "You must provide a mean front tension to use the pyroll-lippmann-mahrenholz-power-and-labour plugin!")
 
 
-@RollPass.Roll.neutral_angle
+@RollPass.Roll.neutral_point
 def neutral_angle(self: RollPass.Roll):
     rp = self.roll_pass
     mean_flow_stress = (rp.in_profile.flow_stress + 2 * rp.out_profile.flow_stress) / 3
