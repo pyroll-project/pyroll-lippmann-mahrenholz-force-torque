@@ -8,19 +8,20 @@ from pyroll.core import Profile, PassSequence, RollPass, Roll, CircularOvalGroov
 def test_solve(tmp_path: Path, caplog):
     caplog.set_level(logging.INFO, logger="pyroll")
 
-    def test_solve(tmp_path: Path, caplog):
-        caplog.set_level(logging.INFO, logger="pyroll")
+    import pyroll.lippmann_mahrenholz_power_and_labour
 
-        import pyroll.lippmann_mahrenholz_power_and_labour
+    in_profile = Profile.round(
+        diameter=30e-3,
+        temperature=1200 + 273.15,
+        strain=0,
+        material=["C45", "steel"],
+        flow_stress=100e6,
+        density=7.5e3,
+        thermal_capacity=690,
+    )
 
-        in_profile = Profile.round(
-            diameter=30e-3,
-            temperature=1200 + 273.15,
-            strain=0,
-            material=["C45", "steel"],
-        )
-
-        sequence = PassSequence([
+    sequence = PassSequence(
+        [
             RollPass(
                 label="Oval I",
                 roll=Roll(
@@ -35,7 +36,6 @@ def test_solve(tmp_path: Path, caplog):
                 gap=2e-3,
                 back_tension=0,
                 front_tension=6e6,
-
             ),
             Transport(
                 label="I => II",
@@ -55,25 +55,21 @@ def test_solve(tmp_path: Path, caplog):
                 gap=2e-3,
                 back_tension=6e6,
                 front_tension=0,
-
             ),
-        ])
+        ]
+    )
 
-        try:
-            sequence.solve(in_profile)
-        finally:
-            print("\nLog:")
-            print(caplog.text)
+    try:
+        sequence.solve(in_profile)
+    finally:
+        print("\nLog:")
+        print(caplog.text)
 
-        try:
-            import pyroll.report
-
-            report = pyroll.report.report(sequence)
-
-            report_file = tmp_path / "report.html"
-            report_file.write_text(report)
-            print(report_file)
-            webbrowser.open(report_file.as_uri())
-
-        except ImportError:
-            pass
+    try:
+        from pyroll.report import report
+        report = report(sequence)
+        f = tmp_path / "report.html"
+        f.write_text(report)
+        webbrowser.open(f.as_uri())
+    except ImportError:
+        pass

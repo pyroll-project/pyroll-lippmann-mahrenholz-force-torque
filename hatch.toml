@@ -1,6 +1,6 @@
 [build]
 packages = [
-    "pyroll" # place your package in the pyroll namespace
+    "pyroll"
 ]
 
 [version]
@@ -9,8 +9,8 @@ path = "pyroll/lippmann_mahrenholz_power_and_labour.py"
 [envs.default]
 path = ".venv"
 dependencies = [
-    "pytest ~= 7.0",
-    "pyroll-report ~= 2.0.0b",
+    "pytest",
+    "pyroll-report",
 ]
 
 
