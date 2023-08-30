@@ -72,10 +72,21 @@ def inverse_forming_efficiency(self: RollPass):
         np.sqrt(1 - abs_rel_drought) / (1 - abs_rel_drought * (1 - relative_neutral_angle ** 2)))
 
 
+@RollPass.DiskElement.deformation_resistance
+def deformation_resistance(self: RollPass.DiskElement):
+    mean_flow_stress = (self.in_profile.flow_stress + 2 * self.out_profile.flow_stress) / 3
+    return mean_flow_stress * self.roll_pass.inverse_forming_efficiency
+
+
+@RollPass.deformation_resistance
+def deformation_resistance(self: RollPass):
+    mean_flow_stress = (self.in_profile.flow_stress + 2 * self.out_profile.flow_stress) / 3
+    return mean_flow_stress * self.inverse_forming_efficiency
+
+
 @RollPass.roll_force
 def roll_force(self: RollPass):
-    mean_flow_stress = (self.in_profile.flow_stress + 2 * self.out_profile.flow_stress) / 3
-    return self.roll.contact_area * mean_flow_stress * self.inverse_forming_efficiency
+    return self.roll.contact_area * self.deformation_resistance
 
 
 @RollPass.roll_torque_loss_function
