@@ -1,5 +1,5 @@
 [project]
-name = "pyroll-lippmann-mahrenholz-power-and-labour"
+name = "pyroll-lippmann-mahrenholz-force-torque"
 description = "Plugin for PyRolL providing the power and labour calculation after O. Lippmann and H. Mahrenholz"
 authors = [
     { name = "Christoph Renzing", email = "christoph.renzing@imf.tu-freiberg.de" }
@@ -10,7 +10,7 @@ homepage = "https://pyroll-project.github.io/"
 repository = "https://github.com/pyroll-project/pyroll-lippmann-mahrenholz-power-and-labour"
 documentation = "https://pyroll-project.github.io/modules/pyroll-lippmann-mahrenholz-power-and-labour/docs/"
 packages = [
-    { include = "pyroll/lippmann_mahrenholz_power_and_labour" }
+    { include = "pyroll/lippmann_mahrenholz_force_torque" }
 ]
 readme = "README.md"
 classifiers = [

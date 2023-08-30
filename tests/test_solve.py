@@ -8,7 +8,7 @@ from pyroll.core import Profile, PassSequence, RollPass, Roll, CircularOvalGroov
 def test_solve(tmp_path: Path, caplog):
     caplog.set_level(logging.INFO, logger="pyroll")
 
-    import pyroll.lippmann_mahrenholz_power_and_labour
+    import pyroll.lippmann_mahrenholz_force_torque
 
     in_profile = Profile.round(
         diameter=30e-3,

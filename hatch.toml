@@ -4,7 +4,7 @@ packages = [
 ]
 
 [version]
-path = "pyroll/lippmann_mahrenholz_power_and_labour.py"
+path = "pyroll/lippmann_mahrenholz_force_torque.py"
 
 [envs.default]
 path = ".venv"
