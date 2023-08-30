@@ -21,14 +21,12 @@ Roll.neutral_angle = Hook[float]()
 
 @RollPass.front_tension
 def front_tension(self: RollPass):
-    raise ValueError(
-        "You must provide a mean front tension to use the pyroll-lippmann-mahrenholz-power-and-labour plugin!")
+    return 0
 
 
 @RollPass.back_tension
 def back_tension(self: RollPass):
-    raise ValueError(
-        "You must provide a mean back tension to use the pyroll-lippmann-mahrenholz-power-and-labour plugin!")
+    return 0
 
 
 @RollPass.Roll.entry_angle
@@ -74,7 +72,7 @@ def inverse_forming_efficiency(self: RollPass):
 
 @RollPass.DiskElement.deformation_resistance
 def deformation_resistance(self: RollPass.DiskElement):
-    mean_flow_stress = (self.in_profile.flow_stress + 2 * self.out_profile.flow_stress) / 3
+    mean_flow_stress = (self.in_profile.flow_stress + 2 * self.out_profile.flow_stress) / 2
     return mean_flow_stress * self.roll_pass.inverse_forming_efficiency
 
 
