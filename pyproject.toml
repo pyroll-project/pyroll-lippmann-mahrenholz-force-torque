@@ -6,12 +6,6 @@ authors = [
 ]
 
 license = "BSD-3-Clause"
-homepage = "https://pyroll-project.github.io/"
-repository = "https://github.com/pyroll-project/pyroll-lippmann-mahrenholz-force-torque"
-documentation = "https://github.com/pyroll-project/pyroll-lippmann-mahrenholz-force-torque/blob/main/docs/docs.pdf"
-packages = [
-    { include = "pyroll/lippmann_mahrenholz_force_torque" }
-]
 readme = "README.md"
 classifiers = [
     "Intended Audience :: Science/Research",
@@ -20,12 +14,17 @@ classifiers = [
     "Topic :: Scientific/Engineering"
 ]
 
-requires-python = ">=3.9, <4.0"
+requires-python = ">=3.9"
 dependencies = [
     "pyroll-core"
 ]
 
 dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://pyroll-project.github.io/"
+Repository = "https://github.com/pyroll-project/pyroll-lippmann-mahrenholz-force-torque"
+Documentation = "https://github.com/pyroll-project/pyroll-lippmann-mahrenholz-force-torque/blob/main/docs/docs.pdf"
 
 [build-system]
 requires = ["hatchling"]
