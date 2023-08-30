@@ -1,4 +1,4 @@
-# PyRolL Lippmann - Mahrenholz Power and Labour
+# PyRolL Lippmann - Mahrenholz Force and Torque
 
 Plugin for PyRolL providing Power and Labour calculations from O. Lippmann and H. Mahrenholz.
 
