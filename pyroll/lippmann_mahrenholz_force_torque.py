@@ -1,8 +1,8 @@
 import logging
 import numpy as np
-from pyroll.core import RollPass, Roll, Hook
+from pyroll.core import RollPass, Hook
 
-VERSION = "2.0.0.post0"
+VERSION = "2.0.1"
 
 log = logging.getLogger(__name__)
 
@@ -11,12 +11,6 @@ RollPass.inverse_forming_efficiency = Hook[float]()
 
 RollPass.roll_torque_loss_function = Hook[float]()
 """Loss function defined by Lippmann and Mahrenholz for the roll torque for the roll pass."""
-
-Roll.entry_angle = Hook[float]()
-"""Angle at which the profile enters the roll gap."""
-
-Roll.neutral_angle = Hook[float]()
-"""Neutral angle defined by Lippmann and Mahrenholz."""
 
 
 @RollPass.front_tension
@@ -29,28 +23,17 @@ def back_tension(self: RollPass):
     return 0
 
 
-@RollPass.Roll.entry_angle
-def entry_angle(self: RollPass.Roll):
-    return -np.arcsin(-self.contact_length / self.working_radius)
-
-
 @RollPass.Roll.neutral_angle
 def neutral_angle(self: RollPass.Roll):
     rp = self.roll_pass
     mean_flow_stress = (rp.in_profile.flow_stress + 2 * rp.out_profile.flow_stress) / 3
-    abs_rel_drought = np.abs(rp.rel_draught)
 
-    p1 = np.sqrt((1 - abs_rel_drought) / abs_rel_drought)
-    p2 = 1 / 2 * np.sqrt(rp.out_profile.equivalent_height / self.working_radius)
-    p3 = np.log(1 - abs_rel_drought)
+    p1 = np.sqrt((1 - abs(rp.rel_draught)) / abs(rp.rel_draught))
+    p2 = 1 / 2 * np.sqrt(rp.out_profile.equivalent_height / self.working_radius) * (
+            (rp.back_tension - rp.front_tension) / mean_flow_stress + np.log(1 - abs(rp.rel_draught)))
+    p3 = 1 / 2 * np.arctan(np.sqrt(abs(rp.rel_draught) / (1 - abs(rp.rel_draught))))
 
-    return self.entry_angle * np.tan(
-        p2 * ((rp.back_tension - rp.front_tension) / mean_flow_stress + p3) + 0.5 * np.arctan(p1))
-
-
-@RollPass.Roll.neutral_point
-def neutral_point(self: RollPass.Roll):
-    return -self.working_radius * np.sin(self.neutral_angle)
+    return rp.entry_angle * p1 * np.tan(p2 + p3)
 
 
 @RollPass.inverse_forming_efficiency
@@ -59,15 +42,14 @@ def inverse_forming_efficiency(self: RollPass):
         return 1
 
     mean_flow_stress = (self.in_profile.flow_stress + 2 * self.out_profile.flow_stress) / 3
-    abs_rel_drought = np.abs(self.rel_draught)
-    relative_neutral_angle = self.roll.neutral_angle / self.roll.entry_angle
+    relative_neutral_angle = self.roll.neutral_angle / self.entry_angle
 
     return self.back_tension / mean_flow_stress + 2 * np.sqrt(
-        (1 - abs_rel_drought) / abs_rel_drought) * np.arctan(
-        np.sqrt(abs_rel_drought / (1 - abs_rel_drought))) - 1 + np.sqrt(
+        (1 - abs(self.rel_draught)) / abs(self.rel_draught)) * np.arctan(
+        np.sqrt(abs(self.rel_draught) / (1 - abs(self.rel_draught)))) - 1 + np.sqrt(
         self.roll.working_radius / self.out_profile.equivalent_height) * np.sqrt(
-        (1 - abs_rel_drought) / abs_rel_drought) * np.log(
-        np.sqrt(1 - abs_rel_drought) / (1 - abs_rel_drought * (1 - relative_neutral_angle ** 2)))
+        (1 - abs(self.rel_draught)) / abs(self.rel_draught)) * np.log(
+        np.sqrt(1 - abs(self.rel_draught)) / (1 - abs(self.rel_draught) * (1 - relative_neutral_angle ** 2)))
 
 
 @RollPass.DiskElement.deformation_resistance
@@ -92,11 +74,10 @@ def roll_torque_loss_function(self: RollPass):
     if np.isclose(self.rel_draught, 0):
         return 1
 
-    relative_neutral_angle = self.roll.neutral_angle / self.roll.entry_angle
-    abs_rel_drought = np.abs(self.rel_draught)
+    relative_neutral_angle = self.roll.neutral_angle / self.entry_angle
 
     return np.sqrt(self.roll.working_radius / self.in_profile.equivalent_height) * np.sqrt(
-        (1 - abs_rel_drought) / abs_rel_drought) * (1 / 2 - relative_neutral_angle)
+        (1 - abs(self.rel_draught)) / abs(self.rel_draught)) * (1 / 2 - relative_neutral_angle)
 
 
 @RollPass.Roll.roll_torque
@@ -106,4 +87,4 @@ def roll_torque(self: RollPass.Roll):
     mean_width = (rp.in_profile.equivalent_width + 2 * rp.out_profile.equivalent_width) / 3
     height_change = rp.in_profile.equivalent_height - rp.out_profile.equivalent_height
 
-    return mean_width * self.working_radius * mean_flow_stress * height_change * self.roll_pass.roll_torque_loss_function
+    return mean_width * self.working_radius * mean_flow_stress * height_change * rp.roll_torque_loss_function
