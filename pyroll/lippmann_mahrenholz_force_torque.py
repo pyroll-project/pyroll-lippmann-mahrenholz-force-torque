@@ -2,7 +2,7 @@ import logging
 import numpy as np
 from pyroll.core import RollPass, Hook
 
-VERSION = "2.0.2"
+VERSION = "2.0.3"
 
 log = logging.getLogger(__name__)
 
@@ -28,12 +28,17 @@ def neutral_angle(self: RollPass.Roll):
     rp = self.roll_pass
     mean_flow_stress = (rp.in_profile.flow_stress + 2 * rp.out_profile.flow_stress) / 3
     abs_rel_draught = abs(rp.rel_draught)
+    back_tension_model_definition = - rp.back_tension
+    front_tension_model_definition = - rp.front_tension
 
     p1 = np.sqrt((1 - abs_rel_draught) / abs_rel_draught)
-    p2 = 1 / 2 * np.sqrt(rp.out_profile.equivalent_height / self.working_radius) * ((rp.back_tension - rp.front_tension) / mean_flow_stress + np.log(1 - abs_rel_draught))
+    p2 = 1 / 2 * np.sqrt(rp.out_profile.equivalent_height / self.working_radius) * (
+            (back_tension_model_definition - front_tension_model_definition) / mean_flow_stress + np.log(1 - abs_rel_draught))
     p3 = 1 / 2 * np.arctan(np.sqrt(abs_rel_draught / (1 - abs_rel_draught)))
 
-    return rp.entry_angle * p1 * np.tan(p2 + p3)
+    relative_neutral_angle = p1 * np.tan(p2 + p3)
+
+    return rp.entry_angle * relative_neutral_angle
 
 
 @RollPass.inverse_forming_efficiency
@@ -44,8 +49,9 @@ def inverse_forming_efficiency(self: RollPass):
     mean_flow_stress = (self.in_profile.flow_stress + 2 * self.out_profile.flow_stress) / 3
     relative_neutral_angle = self.roll.neutral_angle / self.entry_angle
     abs_rel_draught = abs(self.rel_draught)
+    back_tension_model_definition = - self.back_tension
 
-    return self.back_tension / mean_flow_stress + 2 * np.sqrt(
+    return back_tension_model_definition/ mean_flow_stress + 2 * np.sqrt(
         (1 - abs_rel_draught) / abs_rel_draught) * np.arctan(
         np.sqrt(abs_rel_draught / (1 - abs_rel_draught))) - 1 + np.sqrt(
         self.roll.working_radius / self.out_profile.equivalent_height) * np.sqrt(
