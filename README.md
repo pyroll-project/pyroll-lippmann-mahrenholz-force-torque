@@ -8,4 +8,4 @@ This project is licensed under the [BSD-3-Clause license](LICENSE).
 
 The package is available via [PyPi](https://pypi.org/project/pyroll-lippmann-mahrenholz-power-and-labour/) and can be installed with
 
-    pip install pyroll-lippmann-mahrenholz-power-and-labour
+    pip install pyroll-lippmann-force-torque
