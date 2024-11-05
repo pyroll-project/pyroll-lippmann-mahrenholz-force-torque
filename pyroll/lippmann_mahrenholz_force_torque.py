@@ -1,30 +1,30 @@
 import logging
 import numpy as np
-from pyroll.core import RollPass, Hook
+from pyroll.core import BaseRollPass, Hook
 
-VERSION = "2.0.3"
+VERSION = "2.0.4"
 
 log = logging.getLogger(__name__)
 
-RollPass.inverse_forming_efficiency = Hook[float]()
+BaseRollPass.inverse_forming_efficiency = Hook[float]()
 """Inverse forming efficiency defined by Lippmann and Mahrenholz for the roll force of the roll pass."""
 
-RollPass.roll_torque_loss_function = Hook[float]()
+BaseRollPass.roll_torque_loss_function = Hook[float]()
 """Loss function defined by Lippmann and Mahrenholz for the roll torque for the roll pass."""
 
 
-@RollPass.front_tension
-def front_tension(self: RollPass):
+@BaseRollPass.front_tension
+def front_tension(self: BaseRollPass):
     return 0
 
 
-@RollPass.back_tension
-def back_tension(self: RollPass):
+@BaseRollPass.back_tension
+def back_tension(self: BaseRollPass):
     return 0
 
 
-@RollPass.Roll.neutral_angle
-def neutral_angle(self: RollPass.Roll):
+@BaseRollPass.Roll.neutral_angle
+def neutral_angle(self: BaseRollPass.Roll):
     rp = self.roll_pass
     mean_flow_stress = (rp.in_profile.flow_stress + 2 * rp.out_profile.flow_stress) / 3
     abs_rel_draught = abs(rp.rel_draught)
@@ -41,8 +41,8 @@ def neutral_angle(self: RollPass.Roll):
     return rp.entry_angle * relative_neutral_angle
 
 
-@RollPass.inverse_forming_efficiency
-def inverse_forming_efficiency(self: RollPass):
+@BaseRollPass.inverse_forming_efficiency
+def inverse_forming_efficiency(self: BaseRollPass):
     if np.isclose(self.rel_draught, 0):
         return 1
 
@@ -59,25 +59,25 @@ def inverse_forming_efficiency(self: RollPass):
         np.sqrt(1 - abs_rel_draught) / (1 - abs_rel_draught * (1 - relative_neutral_angle ** 2)))
 
 
-@RollPass.DiskElement.deformation_resistance
-def deformation_resistance(self: RollPass.DiskElement):
+@BaseRollPass.DiskElement.deformation_resistance
+def deformation_resistance(self: BaseRollPass.DiskElement):
     mean_flow_stress = (self.in_profile.flow_stress + 2 * self.out_profile.flow_stress) / 3
     return mean_flow_stress * self.roll_pass.inverse_forming_efficiency
 
 
-@RollPass.deformation_resistance
-def deformation_resistance(self: RollPass):
+@BaseRollPass.deformation_resistance
+def deformation_resistance(self: BaseRollPass):
     mean_flow_stress = (self.in_profile.flow_stress + 2 * self.out_profile.flow_stress) / 3
     return mean_flow_stress * self.inverse_forming_efficiency
 
 
-@RollPass.roll_force
-def roll_force(self: RollPass):
+@BaseRollPass.roll_force
+def roll_force(self: BaseRollPass):
     return self.roll.contact_area * self.deformation_resistance
 
 
-@RollPass.roll_torque_loss_function
-def roll_torque_loss_function(self: RollPass):
+@BaseRollPass.roll_torque_loss_function
+def roll_torque_loss_function(self: BaseRollPass):
     if np.isclose(self.rel_draught, 0):
         return 1
 
@@ -88,8 +88,8 @@ def roll_torque_loss_function(self: RollPass):
         (1 - abs_rel_draught) / abs_rel_draught) * (1 / 2 - relative_neutral_angle)
 
 
-@RollPass.Roll.roll_torque
-def roll_torque(self: RollPass.Roll):
+@BaseRollPass.Roll.roll_torque
+def roll_torque(self: BaseRollPass.Roll):
     rp = self.roll_pass
     mean_flow_stress = (rp.in_profile.flow_stress + 2 * rp.out_profile.flow_stress) / 3
     mean_width = (rp.in_profile.equivalent_width + 2 * rp.out_profile.equivalent_width) / 3
