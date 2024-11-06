@@ -10,7 +10,7 @@ path = "pyroll/lippmann_mahrenholz_force_torque.py"
 path = ".venv"
 dependencies = [
     "pytest",
-    "pyroll-report",
+    "pyroll-report ~= 3.0",
 ]
 
 

@@ -2,7 +2,7 @@ import logging
 import numpy as np
 from pyroll.core import BaseRollPass, Hook
 
-VERSION = "2.0.4"
+VERSION = "3.0.0"
 
 log = logging.getLogger(__name__)
 
