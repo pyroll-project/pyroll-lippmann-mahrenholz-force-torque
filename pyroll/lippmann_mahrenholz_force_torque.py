@@ -1,30 +1,19 @@
 import logging
 import numpy as np
-from pyroll.core import BaseRollPass, Hook
+from pyroll.core import SymmetricRollPass, Hook
 
 VERSION = "3.0.0"
 
 log = logging.getLogger(__name__)
 
-BaseRollPass.inverse_forming_efficiency = Hook[float]()
+SymmetricRollPass.inverse_forming_efficiency = Hook[float]()
 """Inverse forming efficiency defined by Lippmann and Mahrenholz for the roll force of the roll pass."""
 
-BaseRollPass.roll_torque_loss_function = Hook[float]()
+SymmetricRollPass.roll_torque_loss_function = Hook[float]()
 """Loss function defined by Lippmann and Mahrenholz for the roll torque for the roll pass."""
 
-
-@BaseRollPass.front_tension
-def front_tension(self: BaseRollPass):
-    return 0
-
-
-@BaseRollPass.back_tension
-def back_tension(self: BaseRollPass):
-    return 0
-
-
-@BaseRollPass.Roll.neutral_angle
-def neutral_angle(self: BaseRollPass.Roll):
+@SymmetricRollPass.Roll.neutral_angle
+def neutral_angle(self: SymmetricRollPass.Roll):
     rp = self.roll_pass
     mean_flow_stress = (rp.in_profile.flow_stress + 2 * rp.out_profile.flow_stress) / 3
     abs_rel_draught = abs(rp.rel_draught)
@@ -38,16 +27,16 @@ def neutral_angle(self: BaseRollPass.Roll):
 
     relative_neutral_angle = p1 * np.tan(p2 + p3)
 
-    return rp.entry_angle * relative_neutral_angle
+    return rp.roll.entry_angle * relative_neutral_angle
 
 
-@BaseRollPass.inverse_forming_efficiency
-def inverse_forming_efficiency(self: BaseRollPass):
+@SymmetricRollPass.inverse_forming_efficiency
+def inverse_forming_efficiency(self: SymmetricRollPass):
     if np.isclose(self.rel_draught, 0):
         return 1
 
     mean_flow_stress = (self.in_profile.flow_stress + 2 * self.out_profile.flow_stress) / 3
-    relative_neutral_angle = self.roll.neutral_angle / self.entry_angle
+    relative_neutral_angle = self.roll.neutral_angle / self.roll.entry_angle
     abs_rel_draught = abs(self.rel_draught)
     back_tension_model_definition = - self.back_tension
 
@@ -59,37 +48,37 @@ def inverse_forming_efficiency(self: BaseRollPass):
         np.sqrt(1 - abs_rel_draught) / (1 - abs_rel_draught * (1 - relative_neutral_angle ** 2)))
 
 
-@BaseRollPass.DiskElement.deformation_resistance
-def deformation_resistance(self: BaseRollPass.DiskElement):
+@SymmetricRollPass.DiskElement.deformation_resistance
+def deformation_resistance(self: SymmetricRollPass.DiskElement):
     mean_flow_stress = (self.in_profile.flow_stress + 2 * self.out_profile.flow_stress) / 3
     return mean_flow_stress * self.roll_pass.inverse_forming_efficiency
 
 
-@BaseRollPass.deformation_resistance
-def deformation_resistance(self: BaseRollPass):
+@SymmetricRollPass.deformation_resistance
+def deformation_resistance(self: SymmetricRollPass):
     mean_flow_stress = (self.in_profile.flow_stress + 2 * self.out_profile.flow_stress) / 3
     return mean_flow_stress * self.inverse_forming_efficiency
 
 
-@BaseRollPass.roll_force
-def roll_force(self: BaseRollPass):
+@SymmetricRollPass.roll_force
+def roll_force(self: SymmetricRollPass):
     return self.roll.contact_area * self.deformation_resistance
 
 
-@BaseRollPass.roll_torque_loss_function
-def roll_torque_loss_function(self: BaseRollPass):
+@SymmetricRollPass.roll_torque_loss_function
+def roll_torque_loss_function(self: SymmetricRollPass):
     if np.isclose(self.rel_draught, 0):
         return 1
 
-    relative_neutral_angle = self.roll.neutral_angle / self.entry_angle
+    relative_neutral_angle = self.roll.neutral_angle / self.roll.entry_angle
     abs_rel_draught = abs(self.rel_draught)
 
     return np.sqrt(self.roll.working_radius / self.out_profile.equivalent_height) * np.sqrt(
         (1 - abs_rel_draught) / abs_rel_draught) * (1 / 2 - relative_neutral_angle)
 
 
-@BaseRollPass.Roll.roll_torque
-def roll_torque(self: BaseRollPass.Roll):
+@SymmetricRollPass.Roll.roll_torque
+def roll_torque(self: SymmetricRollPass.Roll):
     rp = self.roll_pass
     mean_flow_stress = (rp.in_profile.flow_stress + 2 * rp.out_profile.flow_stress) / 3
     mean_width = (rp.in_profile.equivalent_width + 2 * rp.out_profile.equivalent_width) / 3
